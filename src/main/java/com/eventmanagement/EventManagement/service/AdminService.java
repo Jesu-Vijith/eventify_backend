@@ -110,6 +110,7 @@ public class AdminService {
         return "Event is Blocked Successfully!";
     }
 
+
     public String unblockEvent(String eventId) {
         Event event=eventRepository.findByEventId(eventId)
                 .orElseThrow(()->new CustomException("Event Not Found"));
