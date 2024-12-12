@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -24,6 +25,9 @@ public class SecurityConfig {
 
     @Autowired
     private TokenFilter tokenFilter;
+
+    @Autowired
+    private CorsFilter corsFilter;
 
 
     private  static final String[] AUTH_DOC_LIST={
@@ -38,6 +42,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(customizer->customizer.disable())
+                .sessionManagement(sessionManagement->sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(corsFilter , CorsFilter.class )
                 .authorizeHttpRequests(authorize-> authorize
                         .requestMatchers("/api/signup").permitAll()
                         .requestMatchers("/api/signup_confirmation").permitAll()
@@ -45,8 +51,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/resend_signup_confirmation").permitAll()
                         .requestMatchers("/api/login").permitAll()
                         .requestMatchers("/api/forgotPassword").permitAll()
-                        .requestMatchers("/api/forgotPassword_resend").permitAll()
-                        .requestMatchers("/api/update_forgot_password").permitAll()
+                        .requestMatchers("/api/resetPassword_resend").permitAll()
+                        .requestMatchers("/api/resetPassword").permitAll()
 //                        .requestMatchers("/api/change_password").permitAll()
 //                        .requestMatchers("/api/logout").permitAll()
 //                        .requestMatchers("/api/delete_user").permitAll()
@@ -64,9 +70,14 @@ public class SecurityConfig {
 //                        .requestMatchers("/api/ticket/getAllEvents").permitAll()
 //                        .requestMatchers("/api/ticket/cancelTicket/{ticketId}").permitAll()
 //
-//                        .requestMatchers("/api/paypal/confirmPayment").permitAll()
-//                        .requestMatchers("/api/paypal/cancel").permitAll()
-//                        .requestMatchers("/api/paypal/success").permitAll()
+
+                        .requestMatchers("/api/ticket/getAllEvents").permitAll()
+
+                        .requestMatchers("/api/paypal/confirmPayment").permitAll()
+                        .requestMatchers("/api/paypal/cancel").permitAll()
+                        .requestMatchers("/api/paypal/success").permitAll()
+                        .requestMatchers("/api/paypal/success-event").permitAll()
+
 
 
                         .requestMatchers("/api/passwordEncrypt").permitAll()

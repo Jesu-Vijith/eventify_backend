@@ -1,7 +1,5 @@
 package com.eventmanagement.EventManagement.model.entity;
 
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,14 +11,12 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Payments {
+public class PaymentEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String paymentId;
 
-    @OneToOne
-    @JoinColumn(name = "ticket_id" )
-    private Ticket ticket;
+   private String eventId;
 
     private String paymentMethod;
 
@@ -28,7 +24,6 @@ public class Payments {
 
     private String paymentStatus;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING , pattern = "yyyy-MM-dd")
     private Date paymentDate;
 
     private String paypalPaymentId;
@@ -38,3 +33,4 @@ public class Payments {
     private String saleId;
 
 }
+

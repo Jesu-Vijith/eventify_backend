@@ -38,13 +38,14 @@ public class AdminService {
         Long totalActiveOrganizers=userRepository.countActiveUsersByRole(RoleEnum.ORGANIZER);
         Long totalActiveAttendees=userRepository.countActiveUsersByRole(RoleEnum.ATTENDEE);
         Long totalTicketsSold=ticketRepository.countTicketsWithPaymentDone();
-        overview.put("Active Events: ",activeEvents);
-        overview.put("Total Events: ",totalEvents);
-        overview.put("Total Active Organizers: ",totalActiveOrganizers);
-        overview.put("Total Active Attendees: ",totalActiveAttendees);
-        overview.put("Total Tickets Sold: ",totalTicketsSold);
+        overview.put("Active Events",activeEvents);
+        overview.put("Total Events",totalEvents);
+        overview.put("Total Active Organizers",totalActiveOrganizers);
+        overview.put("Total Active Attendees",totalActiveAttendees);
+        overview.put("Total Tickets Sold",totalTicketsSold);
         return overview;
     }
+
 
     public Map<String, Long> eventDetailsById(String eventId) {
         Event event=eventRepository.findByEventId(eventId)
@@ -73,10 +74,10 @@ public class AdminService {
        return users;
     }
 
-    public List<User> getAllOrganizer() {
-        List<User>users= userRepository.findUsersByRole(RoleEnum.ORGANIZER);
-        return users;
-    }
+//    public List<User> getAllOrganizer() {
+//        List<User>users= userRepository.findUsersByRole(RoleEnum.ORGANIZER);
+//        return users;
+//    }
 
     public User findById(String userId) {
         User user=userRepository.findById(userId)
@@ -105,6 +106,7 @@ public class AdminService {
         Event event=eventRepository.findByEventId(eventId)
                 .orElseThrow(()->new CustomException("Event Not Found"));
         event.setIsActive(false);
+        eventRepository.save(event);
         return "Event is Blocked Successfully!";
     }
 
@@ -112,6 +114,16 @@ public class AdminService {
         Event event=eventRepository.findByEventId(eventId)
                 .orElseThrow(()->new CustomException("Event Not Found"));
         event.setIsActive(true);
+        eventRepository.save(event);
         return "Event is Unblocked Successfully!";
+    }
+
+    public List<User> getAllIndividualOrganizers() {
+        return userRepository.findByOrganizerType(User.OrganizerType.INDIVIDUAL);
+    }
+
+    // Fetch all company organizers
+    public List<User> getAllCompanyOrganizers() {
+        return userRepository.findByOrganizerType(User.OrganizerType.COMPANY);
     }
 }

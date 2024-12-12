@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CodeDeliveryDetailsType;
 
 import javax.crypto.SecretKey;
+import java.security.Key;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -32,8 +34,9 @@ public class AccessController {
     private KeyService keyService;
 
     @PostMapping("/keyGeneration")
-    public ResponseEntity<String> keyGeneration(){
-        return ResponseEntity.ok(accessService.generateKey());
+    public ResponseEntity<String> keyGeneration(@RequestBody Map<String,String> request){
+        String uniqueId=request.get("uniqueId");
+        return ResponseEntity.ok(accessService.generateKey(uniqueId));
     }
 
     @PostMapping("/signup")
@@ -56,10 +59,8 @@ public class AccessController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<SignInResponse> login(@RequestPart String encryptedUsernamePassword,
-                                                @RequestPart String uniqueId){
+    public ResponseEntity<SignInResponse> login(@RequestPart String encryptedUsernamePassword, @RequestPart String uniqueId){
         return ResponseEntity.ok(accessService.decryptUsernamePassword(encryptedUsernamePassword,uniqueId));
-
     }
 
     @PostMapping("/forgotPassword")
@@ -67,12 +68,12 @@ public class AccessController {
         return ResponseEntity.ok(accessService.forgotPassword(email));
     }
 
-    @PostMapping("/forgotPassword_resend")
+    @PostMapping("/resetPassword_resend")
     public ResponseEntity<com.amazonaws.services.cognitoidp.model.CodeDeliveryDetailsType> forgotPasswordResend(@RequestPart String email){
         return ResponseEntity.ok(accessService.forgotPassword(email));
     }
 
-    @PostMapping("/update_forgot_password")
+    @PostMapping("/resetPassword")
     public ResponseEntity<String>confirmNewPassword(@RequestPart String encryptedEmailCodePassword,
                                                     @RequestPart String uniqueId){
         accessService.decryptEmailCodePassword(uniqueId,encryptedEmailCodePassword);
@@ -87,9 +88,9 @@ public class AccessController {
         return ResponseEntity.ok("Password changed successfully");
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestPart String email,
-                                         @RequestHeader String authorization){
+    @PostMapping("/logout/{email}")
+    public ResponseEntity<String> logout(@PathVariable("email") String email,
+                                         @RequestHeader("Authorization") String authorization){
         accessService.logout(email,authorization);
         return ResponseEntity.ok("User logged out successfully");
     }

@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 public class Seating {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String seatingId;
 
     @OneToOne(cascade = CascadeType.ALL)

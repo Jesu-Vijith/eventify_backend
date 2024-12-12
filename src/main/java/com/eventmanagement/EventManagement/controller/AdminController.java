@@ -21,31 +21,37 @@ public class AdminController {
     private final AdminService service;
 
     @GetMapping("/dashboard")
-    public ResponseEntity<Map<String,Long>> adminDashboard(){
-        Map<String,Long>dashboardList=service.adminDashboard();
+    public ResponseEntity<Map<String, Long>> adminDashboard() {
+        Map<String, Long> dashboardList = service.adminDashboard();
         return ResponseEntity.ok(dashboardList);
     }
 
     //Get all events in ticketService
 
     @GetMapping("/eventDetailsById/{eventId}")
-    public ResponseEntity<Map<String,Long>> eventDetailsById(@PathVariable String eventId){
-        Map<String,Long>eventDetailsById=service.eventDetailsById(eventId);
+    public ResponseEntity<Map<String, Long>> eventDetailsById(@PathVariable String eventId) {
+        Map<String, Long> eventDetailsById = service.eventDetailsById(eventId);
         return ResponseEntity.ok(eventDetailsById);
     }
 
     @GetMapping("/getAllAttendee")
-    public ResponseEntity<List<User>>getAllAttendee(){
-        List<User>getAllAttendee=service.getAllAttendee();
+    public ResponseEntity<List<User>> getAllAttendee() {
+        List<User> getAllAttendee = service.getAllAttendee();
         return ResponseEntity.ok(getAllAttendee);
     }
 
 
-    @GetMapping("/getAllOrganizer")
-    public ResponseEntity<List<User>>getAllOrganizer(){
-        List<User>getAllOrganizer=service.getAllOrganizer();
-        return ResponseEntity.ok(getAllOrganizer);
+    @GetMapping("/organizers/individual")
+    public List<User> getIndividualOrganizers() {
+        return service.getAllIndividualOrganizers();
     }
+
+    // Endpoint to get all company organizers
+    @GetMapping("/organizers/company")
+    public List<User> getCompanyOrganizers() {
+        return service.getAllCompanyOrganizers();
+    }
+
 
     //Both organizer and attendee
     @GetMapping("/getUserById/{userId}")
@@ -77,7 +83,4 @@ public class AdminController {
         String block=service.unblockEvent(eventId);
         return ResponseEntity.ok(block);
     }
-
-
-
 }

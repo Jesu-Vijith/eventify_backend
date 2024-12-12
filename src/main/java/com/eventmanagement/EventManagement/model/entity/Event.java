@@ -17,23 +17,30 @@ import java.util.Date;
 @NoArgsConstructor
 public class Event {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String eventId;
 
 
     private String organizerId;
     private String eventTitle;
     private String eventType;
+
+    @Column(length = 1000)
     private String description;
     private String location;
     @JsonFormat(shape = JsonFormat.Shape.STRING , pattern = "yyyy-MM-dd")
     private Date date;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
     private LocalTime time;
 
+
+
     private String organizerName;
+    private String organizerEmail;
+
     private Boolean isActive;
+
+    private Boolean isPaymentDone;
 
     //private boolean EventExpiration;
     @JsonFormat(shape = JsonFormat.Shape.STRING , pattern = "yyyy-MM-dd")

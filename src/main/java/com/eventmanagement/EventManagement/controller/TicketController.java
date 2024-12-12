@@ -3,6 +3,7 @@ package com.eventmanagement.EventManagement.controller;
 import com.eventmanagement.EventManagement.model.dto.TicketDTO;
 import com.eventmanagement.EventManagement.model.entity.Event;
 import com.eventmanagement.EventManagement.model.entity.Ticket;
+import com.eventmanagement.EventManagement.model.entity.User;
 import com.eventmanagement.EventManagement.service.TicketService;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,14 @@ public class TicketController {
         return ResponseEntity.ok(bookTicketUrl);
     }
 
+    @GetMapping("/getAttendees/{eventId}")
+    public ResponseEntity<List<User>> getAttendeesByEventId(@PathVariable String eventId){
+        List<User>users=ticketService.getAttendeesByEventId(eventId);
+        return ResponseEntity.ok(users);
+    }
+
+
+    //for fetching ticket details of attendee
     @GetMapping("/getAllTickets/{attendeeId}")
     public ResponseEntity<List<Ticket>> getAllTickets(@PathVariable String attendeeId){
         List<Ticket> tickets=ticketService.getAllTickets(attendeeId);

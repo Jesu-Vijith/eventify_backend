@@ -11,12 +11,16 @@ import java.util.List;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket,String> {
 
-    @Query("SELECT t FROM Ticket t WHERE t.attendeeId = :attendeeId")
-    List<Ticket> findAllByAttendeeId(@Param("attendeeId") String attendeeId);
+    @Query("SELECT t FROM Ticket t WHERE t.attendeeId = :attendeeId AND t.isTicketActive = true")
+    List<Ticket> findAllByAttendeeIdAndIsTicketActive(@Param("attendeeId") String attendeeId);
 
     @Query("SELECT COUNT(t) FROM Ticket t WHERE t.isPaymentDone = true")
     Long countTicketsWithPaymentDone();
 
-    @Query("SELECT t FROM Ticket t WHERE t.eventId = :eventId")
-    List<Ticket> findAllByEventId(String eventId);
+    @Query("SELECT t FROM Ticket t WHERE t.eventId = :eventId AND t.isTicketActive = true")
+    List<Ticket> findAllByEventIdAndIsTicketActive(String eventId);
+
+    @Query("SELECT t.attendeeId FROM Ticket t WHERE t.eventId = :eventId")
+    List<String> findAttendeesIdByEventId(@Param("eventId") String eventId);
+
 }
