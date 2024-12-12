@@ -21,4 +21,5 @@ public class EventDTO {
     private String location;
     private Date date;
     private LocalTime time;
+
 }

@@ -2,10 +2,7 @@ package com.eventmanagement.EventManagement.service;
 
 import com.eventmanagement.EventManagement.exception.CustomException;
 import com.eventmanagement.EventManagement.model.dto.TicketDTO;
-import com.eventmanagement.EventManagement.model.entity.Event;
-import com.eventmanagement.EventManagement.model.entity.Payments;
-import com.eventmanagement.EventManagement.model.entity.Seating;
-import com.eventmanagement.EventManagement.model.entity.Ticket;
+import com.eventmanagement.EventManagement.model.entity.*;
 import com.eventmanagement.EventManagement.repository.*;
 
 import com.paypal.api.payments.Links;
@@ -15,11 +12,13 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 @Service
-public class TicketService {
+public class TicketService extends HelperService{
 
     @Autowired
     private UserRepository userRepository;
@@ -41,6 +40,7 @@ public class TicketService {
 
     public String bookTicket(TicketDTO ticketReq) {
         try {
+
             if((ticketReq.getTotalEarlyBirdSeats()+ticketReq.getTotalVipSeats()+ticketReq.getTotalGeneralSeats())>ticketReq.getTotalSeats()
                     || (ticketReq.getTotalEarlyBirdSeats()+ticketReq.getTotalVipSeats()+ticketReq.getTotalGeneralSeats())<ticketReq.getTotalSeats()){
                 throw new CustomException("Enter the seats count properly",HttpStatus.BAD_REQUEST);
@@ -48,6 +48,10 @@ public class TicketService {
             Ticket ticket = new Ticket();
             Event event=eventRepository.findByEventId(ticketReq.getEventId())
                     .orElseThrow(()->new CustomException("Event Not Found",HttpStatus.NOT_FOUND));
+
+            if(!event.getIsActive()){
+                throw new CustomException("Event is Blocked.Try Again Later");
+            }
             Seating seating=event.getSeating();
             if(seating.getTotalNumberOfSeatsAvailable()==0){
                 throw new CustomException("Seats are full. Try another event",HttpStatus.NOT_FOUND);
@@ -75,6 +79,7 @@ public class TicketService {
             }
 
             ticket.setEventId(event.getEventId());
+            ticket.setEventTitle(event.getEventTitle());
             ticket.setAttendeeId(ticketReq.getAttendeeId());
             String attendeeName = userRepository.findNameByUserId(ticket.getAttendeeId())
                     .orElseThrow(() -> new CustomException("Attendee Not Found", HttpStatus.NOT_FOUND));
@@ -109,8 +114,10 @@ public class TicketService {
             ticket.setCost(vipCost + earlyBirdCost + generalCost);
             ticket.setPaymentDone(false);
             ticket.setTicketActive(false);
+            ticket.setDate(event.getDate());
             ticket.setBookedBy(attendeeName);
             ticket.setBookedOn(new Date());
+            ticket.setTicketId(event.getEventId()+"_TKT_"+idGenerator());
             ticketRepository.save(ticket);
 
             String cancelUrl = "http://localhost:8080/api/paypal/cancel";
@@ -135,8 +142,9 @@ public class TicketService {
 
     public List<Ticket> getAllTickets(String attendeeId) {
         try {
-            List<Ticket> tickets = ticketRepository.findAllByAttendeeId(attendeeId);
+            List<Ticket> tickets = ticketRepository.findAllByAttendeeIdAndIsTicketActive(attendeeId);
             return tickets;
+
         }
      catch (DataAccessException e) {
         throw new CustomException("Database access error occurred while fetching tickets", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -160,7 +168,7 @@ public class TicketService {
         Ticket ticket=ticketRepository.findById(ticketId)
                 .orElseThrow(()->new CustomException("Ticket Not Found",HttpStatus.NOT_FOUND));
         if(!ticket.isPaymentDone()){
-            ticketRepository.delete(ticket);
+            ticket.setTicketActive(false);
         }
         else{
         Event event=eventRepository.findByEventId(ticket.getEventId())
@@ -187,8 +195,24 @@ public class TicketService {
         seatingRepository.save(seating);
         Payments payment=paymentRepository.findByTicketId(ticketId)
                 .orElseThrow(()->new CustomException("Payment Not Found"));
+            System.out.println("Hii");
+        ticket.setTicketActive(false);
+        ticketRepository.save(ticket);
         paypalService.refundPayment(payment);
-        ticketRepository.delete(ticket);
         }
     }
+
+    public List<User> getAttendeesByEventId(String eventId) {
+        List<String>attendeesId=ticketRepository.findAttendeesIdByEventId(eventId);
+        List<User>users=new ArrayList<>();
+        for(String attendeeId:attendeesId){
+            System.out.println(attendeeId);
+            User user=userRepository.findByUserId(attendeeId)
+                    .orElseThrow(()->new CustomException("User Not Found"));
+            users.add(user);
+        }
+        return users;
+    }
+
+
 }

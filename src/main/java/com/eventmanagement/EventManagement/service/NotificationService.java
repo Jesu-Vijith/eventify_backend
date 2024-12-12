@@ -29,4 +29,13 @@ public class NotificationService {
                 +"THANK YOU !!";
         emailService.sendEmail(email, subject, message);
     }
+
+    public void notifyOrganizer(Event event, String organizerMail) {
+        String subject = "Event Booking Success!";
+
+        String message= "Hey "+event.getOrganizerName() +", Your Payment for Event "+event.getEventId()+" is completed successfully!" +
+                " Your event is now open for ticket Booking!"+"\n"+"THANK YOU!!";
+
+        emailService.sendEmail(organizerMail,subject,message);
+    }
 }

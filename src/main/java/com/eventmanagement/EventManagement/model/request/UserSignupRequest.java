@@ -1,6 +1,7 @@
 package com.eventmanagement.EventManagement.model.request;
 
 import com.eventmanagement.EventManagement.model.entity.RoleEnum;
+import com.eventmanagement.EventManagement.model.entity.User;
 import lombok.Data;
 
 @Data
@@ -18,4 +19,15 @@ public class UserSignupRequest {
     private String password;
 
     private String userType;
+
+
+    private String companyName;
+    private String contactPersonName;
+    private String companyRegistrationNumber;
+    private String businessEmail;
+    private String phoneNumber;
+    private String businessAddress;
+    private String industryType;
+    private String companyLogo;
+    private String organizerType;
 }

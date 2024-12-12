@@ -36,6 +36,9 @@ public class PaypalService {
     private PaymentRepository paymentRepository;
 
     @Autowired
+    private PaymentEventRepository paymentEventRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -56,7 +59,7 @@ public class PaypalService {
         Amount amount = new Amount();
         amount.setCurrency(currency);
         amount.setTotal(String.format(Locale.forLanguageTag(currency), "%.2f", total));
-
+        System.out.println("HI FROM CREATE PAYMENT");
         Transaction transaction = new Transaction();
         transaction.setDescription(description);
         transaction.setAmount(amount);
@@ -77,14 +80,17 @@ public class PaypalService {
         redirectUrls.setCancelUrl(cancelUrl);
         redirectUrls.setReturnUrl(successUrl);
         payment.setRedirectUrls(redirectUrls);
+        System.out.println("BYE FROM CREATE PAYMENT");
         return payment.create(apiContext);
     }
 
     public Payment executePayment(String paymentId, String payerId) throws PayPalRESTException {
         Payment payment = new Payment();
+        System.out.println("HI FROM EXECUTE PAYMENT");
         payment.setId(paymentId);
         PaymentExecution paymentExecution = new PaymentExecution();
         paymentExecution.setPayerId(payerId);
+        System.out.println("BYE FROM EXECUTE PAYMENT");
         return payment.execute(apiContext, paymentExecution);
 
     }
@@ -127,7 +133,7 @@ public class PaypalService {
 
             ticket.setSeatNames(ticketNames);
             byte[] ticketQr = QrCodeGenerator.generateQRCode(ticket);
-            ticket.setTicketQr(ticketQr);
+            ticket.setTicketQr(null);
             ticket.setPaymentDone(true);
             ticket.setTicketActive(true);
             seating.setTotalNumberOfSeatsBooked(seating.getTotalNumberOfSeatsBooked() + ticket.getTotalNumberOfSeatsBooked());
@@ -151,6 +157,7 @@ public class PaypalService {
     }
 
     public void refundPayment(Payments payment) {
+        System.out.println("HEY FROM REFUND");
         if (payment.getPaypalPaymentId() == null || payment.getPaypalPaymentId().isEmpty()) {
             throw new CustomException("Payment ID is missing. Cannot initiate refund.", HttpStatus.BAD_REQUEST);
         }
@@ -179,12 +186,42 @@ public class PaypalService {
             refundRepository.save(refunds);
             payment.setPaymentStatus("REFUNDED");
             paymentRepository.save(payment);
-
+            System.out.println("BYE FROM REFUND");
         } catch (PayPalRESTException e) {
             throw new CustomException("An error occurred while processing the refund: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    public String confirmPaymentEvent(Event event, String paymentId, String payerId, String salesId) {
+        try {
+            PaymentEvent payments=new PaymentEvent();
+            System.out.println("HI FROM CONFIRM PAYMENT");
+            System.out.println(paymentId);
+            System.out.println(payerId);
+            System.out.println(salesId);
+            payments.setEventId(event.getEventId());
+            payments.setPaymentMethod("paypal");
+            payments.setAmount(5000L);
+            payments.setPaymentStatus("SUCCESS");
+            payments.setPaymentDate(new Date());
+            payments.setPaypalPaymentId(paymentId);
+            payments.setPayerId(payerId);
+            payments.setSaleId(salesId);
+            paymentEventRepository.save(payments);
+
+            String organizerMail=event.getOrganizerEmail();
+            event.setIsPaymentDone(true);
+            eventRepository.save(event);
+
+            notifyService.notifyOrganizer(event,organizerMail);
+            System.out.println("BYE FROM CONFIRM PAYMENT");
+
+            return "Payment successful. Event booking confirmed. You can close this window.";
+        }
+        catch (Exception e) {
+            throw new CustomException("Payment cancelled or failed");
+        }
+    }
 }
 
 

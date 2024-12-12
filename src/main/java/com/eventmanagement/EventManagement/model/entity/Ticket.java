@@ -20,11 +20,11 @@ import java.util.List;
 public class Ticket {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String ticketId;
     private String eventId;
     private String attendeeId;
     private String attendeeName;
+    private String eventTitle;
 
 //    @OneToMany(mappedBy = "ticketId",cascade = CascadeType.ALL)
 //    private List<Seat>seat;
@@ -45,6 +45,9 @@ public class Ticket {
 
     private boolean isPaymentDone;
     private boolean isTicketActive;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING , pattern = "yyyy-MM-dd")
+    private Date date;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING , pattern = "yyyy-MM-dd")
     private Date bookedOn;

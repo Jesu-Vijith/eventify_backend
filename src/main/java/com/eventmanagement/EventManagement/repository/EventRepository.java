@@ -12,8 +12,12 @@ import java.util.Optional;
 @Repository
 public interface EventRepository extends JpaRepository<Event,String> {
 
-    @Query("SELECT e FROM Event e WHERE e.organizerId = :organizerId")
-    List<Event> findAllByOrganizerId(@Param("organizerId") String organizerId);
+    @Query("SELECT e FROM Event e WHERE e.organizerId = :organizerId AND e.isPaymentDone = true")
+    List<Event> findAllByOrganizerIdAndPaymentDone(@Param("organizerId") String organizerId);
+
+    @Query("SELECT e FROM Event e WHERE e.organizerId = :organizerId AND e.isPaymentDone = false")
+    List<Event> findAllByOrganizerIdAndPaymentNotDone(@Param("organizerId") String userId);
+
 
     @Query("SELECT e FROM Event e WHERE e.organizerId = :organizerId AND e.eventId = :eventId")
     Event findByOrganizerIDAndEventId(@Param("organizerId") String organizerId, @Param("eventId") String eventId);
@@ -24,6 +28,8 @@ public interface EventRepository extends JpaRepository<Event,String> {
 
     @Query("SELECT COUNT(e) FROM Event e WHERE e.isActive = true")
     Long countActiveEvents();
+
+
 
     long count();
 

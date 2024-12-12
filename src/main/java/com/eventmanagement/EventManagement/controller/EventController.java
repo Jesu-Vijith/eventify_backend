@@ -31,6 +31,12 @@ public class EventController {
         return ResponseEntity.ok(getAllEvents);
     }
 
+    @GetMapping("/getAllEventsPaymentFalse/{userId}")
+    public ResponseEntity<List<Event>> getAllEventsPaymentFalse(@PathVariable String userId){
+        List<Event>getAllEventPaymentFalse=eventService.getAllEventsPaymentFalse(userId);
+        return ResponseEntity.ok(getAllEventPaymentFalse);
+    }
+
     @GetMapping("/getEventById/{userId}/{eventId}")
     public ResponseEntity<Event> getEventById(@PathVariable String userId,
                                               @PathVariable String eventId){
@@ -49,5 +55,11 @@ public class EventController {
     public ResponseEntity<String>deleteEvent(@PathVariable String eventId){
         eventService.deleteEvent(eventId);
         return ResponseEntity.ok("Event is deleted");
+    }
+
+    @GetMapping("/payment/{eventId}")
+    public ResponseEntity<String>eventPayment(@PathVariable String eventId){
+        String paymentLink=eventService.getPaymentLink(eventId);
+        return ResponseEntity.ok(paymentLink);
     }
 }
