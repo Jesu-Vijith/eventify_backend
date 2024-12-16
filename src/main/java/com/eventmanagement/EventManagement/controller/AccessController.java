@@ -102,8 +102,8 @@ public class AccessController {
     }
 
     @PostMapping("/refreshToken")
-    public ResponseEntity<SignInResponse> refreshToken(@RequestHeader String authentication){
-        SignInResponse response=accessService.refreshToken(authentication);
+    public ResponseEntity<SignInResponse> refreshToken(@RequestHeader("Authorization") String authorization){
+        SignInResponse response=accessService.refreshToken(authorization);
         return ResponseEntity.ok(response);
     }
 
