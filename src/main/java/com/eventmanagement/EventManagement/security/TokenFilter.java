@@ -40,7 +40,7 @@ public class TokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
 
         String token = tokenProvider.resolveToken(httpServletRequest);
-        if(token == null || httpServletRequest.getRequestURI().equals("/api/signup") || httpServletRequest.getRequestURI().startsWith("/api/login")){
+        if(token == null || httpServletRequest.getRequestURI().equals("/api/signup") || httpServletRequest.getRequestURI().startsWith("/api/login") || httpServletRequest.getRequestURI().startsWith("/api/refreshToken")){
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         }else {
             try{
